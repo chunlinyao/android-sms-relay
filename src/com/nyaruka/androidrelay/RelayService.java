@@ -455,6 +455,9 @@ public class RelayService extends Service implements SMSModem.SmsModemListener {
 		client.getParams().setParameter("http.socket.timeout", new Integer(25000));
 		
 		HttpGet httpget = new HttpGet(url);
+		httpget.addHeader("Accept", "application/json");
+		httpget.addHeader("Content-Type"," text/plain; charset=UTF-8");
+        
 		ResponseHandler<String> responseHandler = new BasicResponseHandler();
 		String content = client.execute(httpget, responseHandler);
 		
@@ -479,7 +482,7 @@ public class RelayService extends Service implements SMSModem.SmsModemListener {
 			return;
 		}
 		
-		String url = receiveURL + "&sender=" + URLEncoder.encode(msg.number) + "&message=" + URLEncoder.encode(msg.text);			
+		String url = receiveURL + "&sender=" + URLEncoder.encode(msg.number, "UTF-8") + "&message=" + URLEncoder.encode(msg.text,"UTF-8");			
 		Log.d(TAG, "Sending: "+ url);
 		
 		try {
@@ -493,7 +496,7 @@ public class RelayService extends Service implements SMSModem.SmsModemListener {
 					JSONArray responses = json.getJSONArray("responses");
 					for (int i=0; i<responses.length(); i++) {
 						JSONObject response = responses.getJSONObject(i);
-						String number = "+" + response.getString("contact");
+						String number = response.getString("contact");
 						String message = response.getString("text");					
 						long serverId = response.getLong("id");
 
@@ -603,7 +606,7 @@ public class RelayService extends Service implements SMSModem.SmsModemListener {
 				for (int i=0; i<responses.length(); i++) {
 					JSONObject response = responses.getJSONObject(i);		
 					if ("O".equals(response.getString("direction")) && "Q".equals(response.getString("status"))) {
-						String number = "+" + response.getString("contact");
+						String number = response.getString("contact");
 						String message = response.getString("text");
 						long serverId = response.getLong("id");
 						
